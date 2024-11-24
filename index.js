@@ -18,13 +18,35 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+// Timestamp endpoint handler
+app.get("/api/:date?", function (req, res) {
+  let dateParam = req.params.date;
+  let date;
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+  // Handle empty date parameter - return current time
+  if (!dateParam) {
+    date = new Date();
+  }
+  // Handle Unix timestamp (all numbers)
+  else if (/^\d+$/.test(dateParam)) {
+    date = new Date(parseInt(dateParam));
+  }
+  // Handle date string
+  else {
+    date = new Date(dateParam);
+  }
+
+  // Check if date is valid
+  if (date.toString() === 'Invalid Date') {
+    return res.json({ error: "Invalid Date" });
+  }
+
+  // Return formatted response
+  res.json({
+    unix: date.getTime(),
+    utc: date.toUTCString()
+  });
 });
-
-
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
